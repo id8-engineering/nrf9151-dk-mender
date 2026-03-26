@@ -1,0 +1,16 @@
+name: Conventional Commits
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - uses: webiny/action-conventional-commits@b34f00be3f9b4cb0a64eec37b96bcacd5c8a2166
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
