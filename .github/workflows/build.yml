@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 #v6.0.2
         with:
-          path: seven-clicker-sample
+          path: nrf9151-dk-mender
           persist-credentials: false
 
       - name: Set up Python
@@ -28,7 +28,7 @@ jobs:
       - name: Setup Zephyr project
         uses: zephyrproject-rtos/action-zephyr-setup@700109a78599c7bb26585f2fb3d2411d65381b9d #v1.0.13
         with:
-          app-path: seven-clicker-sample
+          app-path: nrf9151-dk-mender
           toolchains: arm-zephyr-eabi
           ccache-cache-key: ubuntu-22.04
 
