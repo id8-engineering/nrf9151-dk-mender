@@ -1,0 +1,80 @@
+mcuboot:
+  address: 0x0
+  region: flash_primary
+  size: 0x10000
+
+mcuboot_pad:
+  address: 0x10000
+  region: flash_primary
+  size: 0x200
+
+tfm:
+  address: 0x10200
+  region: flash_primary
+  size: 0x17e00
+
+app:
+  address: 0x28000
+  region: flash_primary
+  size: 0x58000
+
+mcuboot_primary:
+  address: 0x10000
+  orig_span: &mcuboot_primary_span
+    - mcuboot_pad
+    - tfm
+    - app
+  region: flash_primary
+  size: 0x70000
+  span: *mcuboot_primary_span
+
+mcuboot_primary_app:
+  address: 0x10200
+  orig_span: &mcuboot_primary_app_span
+    - tfm
+    - app
+  region: flash_primary
+  size: 0x6fe00
+  span: *mcuboot_primary_app_span
+
+mcuboot_secondary:
+  address: 0x80000
+  region: flash_primary
+  size: 0x70000
+
+tfm_secure:
+  address: 0x10000
+  orig_span: &tfm_secure_span
+    - mcuboot_pad
+    - tfm
+  region: flash_primary
+  size: 0x18000
+  span: *tfm_secure_span
+
+tfm_nonsecure:
+  address: 0x28000
+  orig_span: &tfm_nonsecure_span
+    - app
+  region: flash_primary
+  size: 0x58000
+  span: *tfm_nonsecure_span
+
+tfm_ps:
+  address: 0xF0000
+  region: flash_primary
+  size: 0x4000
+
+tfm_its:
+  address: 0xF4000
+  region: flash_primary
+  size: 0x2000
+
+tfm_otp_nv_counters:
+  address: 0xF6000
+  region: flash_primary
+  size: 0x2000
+
+unused_storage:
+  address: 0xF8000
+  region: flash_primary
+  size: 0x8000

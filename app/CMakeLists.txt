@@ -6,4 +6,22 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(app LANGUAGES C)
 
-target_sources(app PRIVATE src/main.c)
+set(MENDER_CLIENT_VERSION "local")
+
+target_sources(app PRIVATE
+  src/main.c
+  src/mender.c
+  src/mbedtls_entropy_shim.c
+  src/mender_net_zephyr/http.c
+  src/mender_net_zephyr/net.c
+)
+
+target_include_directories(app PRIVATE
+  ${ZEPHYR_BASE}/../modules/mender-mcu/include
+  ${ZEPHYR_BASE}/../modules/mender-mcu/src/include
+  ${ZEPHYR_BASE}/../modules/mender-mcu/src/platform/net/zephyr
+)
+
+target_compile_definitions(app PRIVATE
+  MENDER_CLIENT_VERSION=\"${MENDER_CLIENT_VERSION}\"
+)
