@@ -32,8 +32,28 @@ jobs:
           toolchains: arm-zephyr-eabi
           ccache-cache-key: ubuntu-22.04
 
+      - name: Install mender-artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl -fsSL https://downloads.mender.io/repos/debian/gpg | sudo tee /etc/apt/trusted.gpg.d/mender.asc
+
+          CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+
+          echo "Using Ubuntu codename: $CODENAME"
+          echo "deb [arch=$(dpkg --print-architecture)] https://downloads.mender.io/repos/workstation-tools ubuntu/$CODENAME/stable main" \
+            | sudo tee /etc/apt/sources.list.d/mender.list
+
+          sudo apt-get update
+          sudo apt-get install -y mender-artifact
+
+      - name: Verify
+        run: mender-artifact --version
+
       - name: Build firmware
         working-directory: nrf9151-dk-mender
         shell: bash
         run: |
           west build -p always -b nrf9151dk/nrf9151/ns app
+
