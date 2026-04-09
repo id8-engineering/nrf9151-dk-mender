@@ -36,4 +36,4 @@ jobs:
         working-directory: nrf9151-dk-mender
         shell: bash
         run: |
-          west build -p always -b nrf9151dk/nrf9151 app
+          west build -p always -b nrf9151dk/nrf9151/ns app
