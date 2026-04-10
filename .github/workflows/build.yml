@@ -32,8 +32,34 @@ jobs:
           toolchains: arm-zephyr-eabi
           ccache-cache-key: ubuntu-22.04
 
+      - name: Install mender-artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl -fsSL https://downloads.mender.io/repos/debian/gpg | sudo tee /etc/apt/trusted.gpg.d/mender.asc
+
+          CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+
+          echo "Using Ubuntu codename: $CODENAME"
+          echo "deb [arch=$(dpkg --print-architecture)] https://downloads.mender.io/repos/workstation-tools ubuntu/$CODENAME/stable main" \
+            | sudo tee /etc/apt/sources.list.d/mender.list
+
+          sudo apt-get update
+          sudo apt-get install -y mender-artifact
+
+      - name: Verify
+        run: mender-artifact --version
+
       - name: Build firmware
         working-directory: nrf9151-dk-mender
         shell: bash
         run: |
           west build -p always -b nrf9151dk/nrf9151/ns app
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f #v7.0.0
+        with:
+          name: nrf9151dk-build
+          if-no-files-found: warn #TODO Change this to error when building with mender-artifact
+          path: nrf9151-dk-mender/build/app/zephyr/zephyr.mender
