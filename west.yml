@@ -17,6 +17,6 @@ manifest:
       import: true
 
     - name: mender-mcu
-      url: https://github.com/mendersoftware/mender-mcu
-      revision: main
+      url: https://github.com/Dexter9532/mender-mcu
+      revision: nrf9151_mender_integration
       path: modules/mender-mcu
