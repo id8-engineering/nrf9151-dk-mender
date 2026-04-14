@@ -1,0 +1,105 @@
+name: Build and upload to Mender
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+env:
+  MENDER_SERVER_URL: https://eu.hosted.mender.io
+  MENDER_DEPLOYMENT_DEVICES_GROUP: nRF9151DK
+  MENDER_ARTIFACTS_CI_ARTIFACT_NAME: nrf9151dk-build
+  MENDER_ARTIFACTS_CI_ARTIFACT_PATH: mender-artifacts
+
+jobs:
+  build:
+    name: Build app
+    runs-on: ubuntu-22.04
+    outputs:
+      mender_release_name: ${{ steps.meta.outputs.mender_release_name }}
+      mender_deployment_name: ${{ steps.meta.outputs.mender_deployment_name }}
+      mender_devices_group: ${{ steps.meta.outputs.mender_devices_group }}
+      mender_artifact_name: ${{ steps.meta.outputs.mender_artifact_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 #v6.0.2
+        with:
+          path: nrf9151-dk-mender
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 #v6.2.0
+        with:
+          python-version: 3.12
+
+      - name: Setup Zephyr project
+        uses: zephyrproject-rtos/action-zephyr-setup@700109a78599c7bb26585f2fb3d2411d65381b9d #v1.0.13
+        with:
+          app-path: nrf9151-dk-mender
+          toolchains: arm-zephyr-eabi
+          ccache-cache-key: ubuntu-22.04
+
+      - name: Install mender-artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          curl -fsSL https://downloads.mender.io/repos/debian/gpg | sudo tee /etc/apt/trusted.gpg.d/mender.asc
+
+          CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+
+          echo "Using Ubuntu codename: $CODENAME"
+          echo "deb [arch=$(dpkg --print-architecture)] https://downloads.mender.io/repos/workstation-tools ubuntu/$CODENAME/stable main" \
+            | sudo tee /etc/apt/sources.list.d/mender.list
+
+          sudo apt-get update
+          sudo apt-get install -y mender-artifact
+
+      - name: Verify
+        run: mender-artifact --version
+
+      - name: Build firmware
+        working-directory: nrf9151-dk-mender
+        shell: bash
+        run: |
+          west build -p always -b nrf9151dk/nrf9151/ns app
+
+      - name: Set Mender metadata
+        id: meta
+        working-directory: nrf9151-dk-mender
+        shell: bash
+        run: |
+          mkdir -p "../${MENDER_ARTIFACTS_CI_ARTIFACT_PATH}"
+          cp build/app/zephyr/zephyr.mender "../${MENDER_ARTIFACTS_CI_ARTIFACT_PATH}/zephyr.mender"
+          echo "mender_artifact_name=zephyr.mender" >> "${GITHUB_OUTPUT}"
+          echo "mender_release_name=${GITHUB_REF_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "mender_deployment_name=${GITHUB_REF_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "mender_devices_group=${MENDER_DEPLOYMENT_DEVICES_GROUP}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f #v7.0.0
+        with:
+          name: ${{ env.MENDER_ARTIFACTS_CI_ARTIFACT_NAME }}
+          if-no-files-found: error
+          path: mender-artifacts/${{ steps.meta.outputs.mender_artifact_name }}
+
+  publish:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317 #v3.1.0
+        with:
+          name: ${{ env.MENDER_ARTIFACTS_CI_ARTIFACT_NAME }}
+          path: ${{ env.MENDER_ARTIFACTS_CI_ARTIFACT_PATH }}
+
+      - name: Upload Mender Artifact to Mender server
+        uses: mendersoftware/mender-gh-action-upload-artifact@v1.0.0
+        with:
+          mender_pat: ${{ secrets.MENDER_SERVER_ACCESS_TOKEN }}
+          mender_artifact: ${{ env.MENDER_ARTIFACTS_CI_ARTIFACT_PATH }}/${{ needs.build.outputs.mender_artifact_name }}
+          mender_uri: ${{ env.MENDER_SERVER_URL }}
