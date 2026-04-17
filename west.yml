@@ -13,5 +13,10 @@ manifest:
     - name: nrf
       remote: ncs
       repo-path: sdk-nrf
-      revision: main
+      revision: v3.2.1
       import: true
+
+    - name: mender-mcu
+      url: https://github.com/Dexter9532/mender-mcu
+      revision: nrf9151_mender_integration
+      path: modules/mender-mcu

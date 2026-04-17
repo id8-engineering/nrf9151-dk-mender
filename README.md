@@ -20,6 +20,7 @@ You also need:
 ## Prerequisites
 
 * Install [nRF Util](https://docs.nordicsemi.com/bundle/nrfutil/page/guides/installing.html.)
+* [Mender account](https://eu.hosted.mender.io/ui/signup)
 
 ## Getting Started
 
@@ -80,17 +81,29 @@ Fetch and check out sources:
 west update
 ```
 
-### Build the application
+### Build and flash firmware
 
-Build the firmware:
+Export Mender tentant token:
 
 ```bash
-west build -p always -b nrf9151dk/nrf9151 app
+export MENDER_TENANT_TOKEN="< paste token here, from https://eu.hosted.mender.io/ui/settings/organization >"
 ```
 
-### Flash firmware
+Build application:
 
-Flash the firmware:
+```bash
+west build -p always -b nrf9151dk/nrf9151/ns app --sysbuild -- \
+  "-Dapp_CONFIG_MENDER_SERVER_TENANT_TOKEN=\"${MENDER_TENANT_TOKEN}\""
+```
+
+You can find the Mender Artifact at:
+
+* `build/app/zephyr/zephyr.mender`
+
+Upload this file to https://eu.hosted.mender.io/ui/software for OTA updates.
+
+
+Flash firmware:
 
 ```bash
 west flash
@@ -98,6 +111,32 @@ west flash
 
 ### Access console
 
+You can use any serial monitor to debug
+
+```bash
+minicom -D /dev/ttyACM0 -b 115200
 ```
-minicom -D /dev/ttyACM0 -b 115200 # Change /dev/ttyACM0 to your actual device
-```
+
+Example startup log:
+
+>```bash
+>*** Booting MCUboot v2.3.0-dev-0d9411f5dda3 ***
+>*** Using nRF Connect SDK v3.2.1-d8887f6f32df ***
+>*** Using Zephyr OS v4.2.99-ec78104f1569 ***
+>I: Starting bootloader
+>I: Primary image: magic=good, swap_type=0x2, copy_done=0x1, image_ok=0x1
+>I: Secondary image: magic=unset, swap_type=0x1, copy_done=0x3, image_ok=0x3
+>I: Boot source: none
+>I: Image index: 0, Swap type: none
+>I: Bootloader chainload address offset: 0x10000
+>I: Image version: v0.0.0
+>�*** Booting nRF Connect SDK v3.2.1-d8887f6f32df ***
+>*** Using Zephyr OS v4.2.99-ec78104f1569 ***
+>[00:00:00.255,645] <inf> main: Starting LTE
+>[00:00:12.127,532] <inf> main: LTE connected
+>[00:00:12.127,593] <inf> mender: Device type: [nrf9151-dk-mender]
+>[00:00:12.131,286] <inf> main: Mender activated
+>[00:00:12.131,317] <inf> main:  V0.1
+>[00:00:12.132,141] <inf> mender: Initialization done
+>[00:00:12.132,171] <inf> mender: Checking for deployment...
+>```
