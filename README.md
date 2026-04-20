@@ -96,7 +96,7 @@ export MENDER_TENANT_TOKEN="< paste token here, from https://eu.hosted.mender.io
 Build application:
 
 ```bash
-west build -p always -b nrf9151dk/nrf9151/ns app --sysbuild -- \
+west build -p always -b nrf9151dk/nrf9151/ns app -- \
   "-Dapp_CONFIG_MENDER_SERVER_TENANT_TOKEN=\"${MENDER_TENANT_TOKEN}\""
 ```
 
