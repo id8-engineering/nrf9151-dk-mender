@@ -1,0 +1,36 @@
+name: Deploy to Mender
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: Mender release name
+        required: true
+        type: string
+      deployment_name:
+        description: Mender deployment name
+        required: true
+        type: string
+      deployment_device_group:
+        description: Mender deployment device group
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  MENDER_SERVER_URL: https://eu.hosted.mender.io
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create deployment on Mender server
+        uses: mendersoftware/mender-gh-action-create-deployment@v1.0.0
+        with:
+          mender_pat: ${{ secrets.MENDER_SERVER_ACCESS_TOKEN }}
+          mender_uri: ${{ env.MENDER_SERVER_URL }}
+          mender_release_name: ${{ inputs.release_name }}
+          mender_deployment_name: ${{ inputs.deployment_name }}
+          mender_devices_group: ${{ inputs.deployment_device_group }}
