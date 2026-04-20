@@ -13,7 +13,7 @@ Hardware used in this project:
 * [nRF9151 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9151-DK)
 
 <p align="center">
-  <img src="assets/nRF9151-DK.jpg" alt="nRF9151 Dev Kit" width="50%" />
+  <img src="assets/nRF9151-DK.webp" alt="nRF9151 Dev Kit" width="50%" />
 </p>
 
 You also need:
