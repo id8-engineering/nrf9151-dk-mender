@@ -8,6 +8,8 @@ manifest:
   remotes:
     - name: ncs
       url-base: https://github.com/nrfconnect
+    - name: id8
+      url-base: https://github.com/id8-engineering
 
   projects:
     - name: nrf
@@ -20,3 +22,9 @@ manifest:
       url: https://github.com/mendersoftware/mender-mcu
       revision: cf31fa22bf358a1c58b0c32a4337571a35e1a1fd
       path: modules/mender-mcu
+
+    - name: seven-board
+      remote: id8
+      repo-path: seven-board
+      revision: main
+      path: modules/seven-board
