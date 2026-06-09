@@ -24,6 +24,7 @@ You also need:
 ## Prerequisites
 
 * Install [nRF Util](https://docs.nordicsemi.com/bundle/nrfutil/page/guides/installing.html)
+* Install [mender-artifact](https://docs.mender.io/downloads/workstation-tools#mender-artifact)
 * [Mender account](https://eu.hosted.mender.io/ui/signup)
 
 ## Getting Started
