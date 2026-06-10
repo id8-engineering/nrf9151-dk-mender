@@ -18,5 +18,5 @@ manifest:
 
     - name: mender-mcu
       url: https://github.com/mendersoftware/mender-mcu
-      revision: cf31fa22bf358a1c58b0c32a4337571a35e1a1fd
+      revision: 20e13a429355e7b38381e4ed182ebff603fcf4a9
       path: modules/mender-mcu
